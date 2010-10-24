@@ -17,7 +17,7 @@ class Slot(models.Model):
         from django.core.urlresolvers import reverse
         return reverse('banners_slotshow', args=[self.pk])
 
-    def __str__(self):
+    def __unicode__(self):
         return 'Banner Slot "%s"' % self.name
 
     @property
