@@ -90,7 +90,7 @@ class Banner(models.Model):
 
     def save(self, force_insert=False, force_update=False):
         if not self.display_order:
-            self.display_order = self.section.banners.all().count() + 1
+            self.display_order = self.section.banner_set.all().count() + 1
         return super(Banner, self).save(force_insert,force_update)
 
     @property
