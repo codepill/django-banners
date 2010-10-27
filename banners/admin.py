@@ -11,7 +11,10 @@ class BannerAdmin(admin.ModelAdmin):
     list_editable = ('display_order',)
     search_fields = ('id', 'title', )
     fieldsets = (
-            (None,   {'fields': ('title', ('slot', 'is_published', 'popup',), 'image', 'image_rollover', 'destination', )}),
+            (None,   {'fields': (
+                'title', ('slot', 'is_published', 'popup',), 'image', 
+                'image_rollover', 'destination', 'custom_html',
+                )}),
             )
 
 

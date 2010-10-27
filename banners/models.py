@@ -38,7 +38,8 @@ class Banner(models.Model):
     slot = models.ForeignKey(Slot)
     # temporary using file field, but will be changed 
     # to special field handling SWF/Image 
-    image = models.FileField(upload_to='uploads/banners/%y/%j/%H/%M%S/')
+    image = models.FileField(upload_to='uploads/banners/%y/%j/%H/%M%S/',
+            null=True, blank=True)
     image_rollover = models.FileField(max_length=255,
             null=True, blank=True, upload_to=os.path.join('uploads','banners'),
             verbose_name=_('on hover image'))
@@ -46,6 +47,7 @@ class Banner(models.Model):
     destination = models.CharField(max_length=255, null=True, blank=True)
     popup = models.BooleanField(default=False)
     display_order = models.IntegerField(default=0)
+    custom_html = models.TextField(null=True, blank=True)
 
     objects = BannerManager()
 
