@@ -12,6 +12,7 @@ class Slot(models.Model):
     name = models.CharField(max_length=255)
     limit = models.PositiveIntegerField(null=True, blank=True)
     rotate = models.BooleanField(default=False)
+    random = models.BooleanField(default=False)
 
     def get_absolute_url(self):
         from django.core.urlresolvers import reverse
@@ -22,7 +23,12 @@ class Slot(models.Model):
 
     @property
     def published_banners(self):
-        return self.banner_set.all().published()
+        qs = self.banner_set.all().published()
+        if self.random:
+            qs = qs.order_by('?')
+        else:
+            qs = qs.order_by('display_order')
+        return qs
 
 
 class BannerQuerySet(models.query.QuerySet):
