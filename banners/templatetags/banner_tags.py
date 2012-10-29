@@ -9,7 +9,7 @@ class BannersForSlotNode(Node):
         self.symbol = symbol
         self.cast_as = cast_as
         self.options = options
-    
+
     def render(self, context):
         try:
             banners = Slot.objects.get(symbol=self.symbol).published_banners
@@ -23,29 +23,25 @@ class BannersForSlotNode(Node):
         except Slot.DoesNotExist:
             return ''
 
+
 @register.tag
 def banners_for_section(parser, token):
     try:
-        # Splitting by None == splitting by spaces.
-        tag_name, arg = token.contents.split(None, 1)
+        tag_name, arg = token.contents.split(None, 1)  # Splitting by None == splitting by spaces.
     except ValueError:
-        raise template.TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
-
-    m = re.search(r'^(.*?) as (\w+)(.*)$', arg)
-    if m:
-        symbol, cast_as, opts = m.groups()
+        raise TemplateSyntaxError, "%r tag requires arguments" % token.contents.split()[0]
+    correct_tag_syntax = re.search(r'^(.*?) as (\w+)(.*)$', arg)
+    if not correct_tag_syntax:
+        raise TemplateSyntaxError, "The %(tag_name)r tag syntax is incorrect. " \
+                                   "Correct syntax is '%(tag_name)s slot as variable' " \
+                                   "where 'variable' can be any name." % {'tag_name': tag_name}
+    else:
+        symbol, cast_as, opts = correct_tag_syntax.groups()
         opts_dict = {}
         for opt in opts.split(' '):
-            if opt.find('=')==-1:
-                opts_dict[opt]=True
+            if opt.find('=') == -1:
+                opts_dict[opt] = True
             else:
                 name, value = opt.split('=')
                 opts_dict[str(name)] = value
         return BannersForSlotNode(symbol, cast_as, opts_dict)
-
-    return BannersForSlotNode(arg)
-
-
-
-
-

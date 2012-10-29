@@ -1,7 +1,9 @@
 from django.db import models
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-from PIL import Image
+from django.contrib.contenttypes.models import ContentType
+from django.core.urlresolvers import reverse
+import Image
 import mimetypes
 import utils
 import os
@@ -14,10 +16,6 @@ class Slot(models.Model):
     rotate = models.BooleanField(default=False)
     random = models.BooleanField(default=False)
 
-    def get_absolute_url(self):
-        from django.core.urlresolvers import reverse
-        return reverse('banners_slotshow', args=[self.pk])
-
     def __unicode__(self):
         return 'Banner Slot "%s"' % self.name
 
@@ -27,7 +25,7 @@ class Slot(models.Model):
         if self.random:
             qs = qs.order_by('?')
         else:
-            qs = qs.order_by('display_order')
+            qs = qs.order_by('display_order', 'id')
         return qs
 
 
@@ -35,27 +33,39 @@ class BannerQuerySet(models.query.QuerySet):
     def published(self):
         return self.filter(is_published=True)
 
+
 class BannerManager(models.Manager):
     def get_query_set(self):
         return BannerQuerySet(self.model).order_by('display_order')
 
+
 class Banner(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
     slot = models.ForeignKey(Slot)
-    # temporary using file field, but will be changed 
-    # to special field handling SWF/Image 
+    # TODO: temporary using file field, but will be changed to special field handling SWF/Image
     image = models.FileField(upload_to='uploads/banners/%y/%j/%H/%M%S/',
-            null=True, blank=True)
+                             null=True, blank=True)
     image_rollover = models.FileField(max_length=255,
-            null=True, blank=True, upload_to=os.path.join('uploads','banners'),
-            verbose_name=_('on hover image'))
+                                      null=True, blank=True, upload_to=os.path.join('uploads', 'banners'),
+                                      verbose_name=_('on hover image'))
     is_published = models.BooleanField(default=False)
     destination = models.CharField(max_length=255, null=True, blank=True)
     popup = models.BooleanField(default=False)
     display_order = models.IntegerField(default=0)
     custom_html = models.TextField(null=True, blank=True)
+    order_field = 'display_order'
+    ordering = ('display_order', 'id',)
 
     objects = BannerManager()
+
+    def order_link(self):
+        model_type_id = ContentType.objects.get_for_model(self.__class__).id
+        kwargs = {"model_type_id": model_type_id}
+        url = reverse("admin_order", kwargs=kwargs)
+        return '<a href="%s" class="order_link">%s</a>' % (url, str(self.pk) or '')
+
+    order_link.allow_tags = True
+    order_link.short_description = 'Order'  # If you change this you should change admin_sorting.js too
 
     @property
     def media_path(self):
@@ -87,7 +97,7 @@ class Banner(models.Model):
             self._mime_type = mimetypes.guess_type(os.path.join(settings.MEDIA_ROOT, str(self.media_path)))
         return self._mime_type
 
-    # these fields should be moved to special SWFImageField
+    # TODO: these fields should be moved to special SWFImageField
     @property
     def is_flash(self):
         return self.mime_type[0] == 'video/x-flv'
@@ -99,7 +109,7 @@ class Banner(models.Model):
     def save(self, force_insert=False, force_update=False):
         if not self.display_order:
             self.display_order = self.section.banner_set.all().count() + 1
-        return super(Banner, self).save(force_insert,force_update)
+        return super(Banner, self).save(force_insert, force_update)
 
     @property
     def size(self):
