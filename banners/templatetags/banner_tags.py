@@ -12,13 +12,13 @@ class BannersForSlotNode(Node):
 
     def render(self, context):
         try:
-            banners = Slot.objects.get(symbol=self.symbol).published_banners
+            slot = Slot.objects.get(symbol=self.symbol, language=context['LANGUAGE_CODE'])
+            banners = slot.published_banners
+            limit = self.options.get('limit') or slot.limit
+            banners = banners[:limit]
             if self.cast_as:
                 context[self.cast_as] = banners
                 return ''
-            if self.options.has_key('limit'):
-                banners = banners[:self.options['limit']]
-
             return banners
         except Slot.DoesNotExist:
             return ''

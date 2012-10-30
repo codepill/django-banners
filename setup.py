@@ -1,5 +1,8 @@
 from setuptools import setup, find_packages
 
+install_requires = [
+    'hexagonit.swfheader==1.2',
+]
 setup(
     name='django-banners',
     version='0.9.1',
@@ -7,6 +10,7 @@ setup(
     author='Marcin Nowak, Piotr Adamowicz',
     author_email='marcin.nowak@codepill.com, piotr.adamowicz@codepill.com',
     url='https://github.com/codepill/django-banners',
+    install_requires = install_requires,
     packages=find_packages(),
     package_dir={'banners': 'banners'},
     classifiers=[

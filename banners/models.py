@@ -3,21 +3,24 @@ from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.contenttypes.models import ContentType
 from django.core.urlresolvers import reverse
+import hexagonit.swfheader
 import Image
 import mimetypes
-import utils
 import os
 
 
 class Slot(models.Model):
-    symbol = models.CharField(max_length=64, unique=True)
+    symbol = models.CharField(max_length=64)
+    language = models.CharField(max_length=6, default='en', choices=settings.LANGUAGES)
     name = models.CharField(max_length=255)
     limit = models.PositiveIntegerField(null=True, blank=True)
-    rotate = models.BooleanField(default=False)
     random = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ('symbol', 'language',)
+
     def __unicode__(self):
-        return 'Banner Slot "%s"' % self.name
+        return 'Banner Slot "%s (%s)"' % (self.name, self.language)
 
     @property
     def published_banners(self):
@@ -40,19 +43,19 @@ class BannerManager(models.Manager):
 
 
 class Banner(models.Model):
-    title = models.CharField(max_length=255, blank=True, null=True)
+    title = models.CharField(max_length=255, blank=True, null=True, help_text=_('This will be used as alt for images.'))
     slot = models.ForeignKey(Slot)
     # TODO: temporary using file field, but will be changed to special field handling SWF/Image
-    image = models.FileField(upload_to='uploads/banners/%y/%j/%H/%M%S/',
-                             null=True, blank=True)
+    banner_file = models.FileField(upload_to='uploads/banners/%y/%j/%H/%M%S/',
+                             null=True, blank=True, help_text=_('This can be any image (such as PNG, JPG, GIF) or a flash file (SWF)'))
     image_rollover = models.FileField(max_length=255,
                                       null=True, blank=True, upload_to=os.path.join('uploads', 'banners'),
-                                      verbose_name=_('on hover image'))
+                                      verbose_name=_('on hover image'),
+                                      help_text=_('This image will be shown if mouse will hover the banner. It is relevant only to image banners (PNG, GIF, JPG).'))
     is_published = models.BooleanField(default=False)
-    destination = models.CharField(max_length=255, null=True, blank=True)
-    popup = models.BooleanField(default=False)
+    destination_url = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Destination URL'), help_text=_('Clicking banner will get user to this URL. It is relevant only to image banners (PNG, GIF, JPG).'))
+    popup = models.BooleanField(default=False, help_text=_("Open banner's destination in new window/tab. It is relevant only to image banners (PNG, GIF, JPG)."))
     display_order = models.IntegerField(default=0)
-    custom_html = models.TextField(null=True, blank=True)
     order_field = 'display_order'
     ordering = ('display_order', 'id',)
 
@@ -69,7 +72,7 @@ class Banner(models.Model):
 
     @property
     def media_path(self):
-        return self.image # bc
+        return self.banner_file # bc
 
     @property
     def hover_media_path(self):
@@ -88,10 +91,6 @@ class Banner(models.Model):
         return self.title or 'Banner %d' % self.id
 
     @property
-    def destination_url(self):
-        return self.destination or None
-
-    @property
     def mime_type(self):
         if not self._mime_type:
             self._mime_type = mimetypes.guess_type(os.path.join(settings.MEDIA_ROOT, str(self.media_path)))
@@ -100,7 +99,7 @@ class Banner(models.Model):
     # TODO: these fields should be moved to special SWFImageField
     @property
     def is_flash(self):
-        return self.mime_type[0] == 'video/x-flv'
+        return self.mime_type[0] == 'application/x-shockwave-flash'
 
     @property
     def is_image(self):
@@ -118,6 +117,7 @@ class Banner(models.Model):
             if self.is_image:
                 self._size = Image.open(filename).size
             elif self.is_flash:
-                self._size = utils.get_flv_size(filename)
+                self._size = (hexagonit.swfheader.parse(filename)['width'],
+                              hexagonit.swfheader.parse(filename)['height'])
         return self._size
 

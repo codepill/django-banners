@@ -4,7 +4,7 @@ from models import *
 
 
 class BannerAdmin(admin.ModelAdmin):
-    list_display = ('order_link', 'id', 'slot', 'title', 'is_published', 'popup', 'destination', 'display_order',)
+    list_display = ('order_link', 'id', 'slot', 'title', 'is_published', 'popup', 'destination_url',)
     list_display_links = ('id', 'title',)
     list_filter = ('is_published', 'slot', 'popup',)
     search_fields = ('id', 'title', )
@@ -12,8 +12,8 @@ class BannerAdmin(admin.ModelAdmin):
     ordering = ('display_order', 'id',)
     fieldsets = (
         (None, {'fields': (
-            'title', ('slot', 'is_published', 'popup',), 'image',
-            'image_rollover', 'destination', 'custom_html',
+            'title', 'slot', 'is_published', 'popup', 'banner_file',
+            'image_rollover', 'destination_url',
             )}),
         )
 
@@ -49,7 +49,8 @@ class BannerAdmin(admin.ModelAdmin):
 
 
 class SlotAdmin(admin.ModelAdmin):
-    list_display = ('name',)
+    list_display = ('name', 'symbol', 'language')
+    list_filter = ('language',)
 
 
 admin.site.register(Banner, BannerAdmin)

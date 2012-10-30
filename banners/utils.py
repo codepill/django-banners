@@ -20,7 +20,7 @@ class FLVReader(dict):
         # Lock on to the file
         self.file = open(filename, 'rb')
         self.signature = self.file.read(3)
-        assert self.signature == 'FLV', 'Not an flv file'
+        assert self.signature == 'FLV' or self.signature == 'SWF', 'Not an flv/swf file'
         self.version = self.readbyte()
         self.typeFlags = self.readbyte()
         self.dataOffset = self.readint()
