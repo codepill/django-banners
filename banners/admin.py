@@ -12,8 +12,9 @@ class BannerAdmin(admin.ModelAdmin):
     ordering = ('display_order', 'id',)
     fieldsets = (
         (None, {'fields': (
-            'title', 'slot', 'is_published', 'popup', 'banner_file',
+            'title', 'slot', 'banner_file',
             'image_rollover', 'destination_url',
+            'is_published', 'popup',
             )}),
         )
 

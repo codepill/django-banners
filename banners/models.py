@@ -47,14 +47,14 @@ class Banner(models.Model):
     slot = models.ForeignKey(Slot)
     # TODO: temporary using file field, but will be changed to special field handling SWF/Image
     banner_file = models.FileField(upload_to='uploads/banners/%y/%j/%H/%M%S/',
-                             null=True, blank=True, help_text=_('This can be any image (such as PNG, JPG, GIF) or a flash file (SWF)'))
+                                   help_text=_('This can be any image such as PNG, JPG, GIF.'))
     image_rollover = models.FileField(max_length=255,
                                       null=True, blank=True, upload_to=os.path.join('uploads', 'banners'),
                                       verbose_name=_('on hover image'),
-                                      help_text=_('This image will be shown if mouse will hover the banner. It is relevant only to image banners (PNG, GIF, JPG).'))
+                                      help_text=_('This image will be shown if mouse will hover the banner.'))
     is_published = models.BooleanField(default=False)
-    destination_url = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Destination URL'), help_text=_('Clicking banner will get user to this URL. It is relevant only to image banners (PNG, GIF, JPG).'))
-    popup = models.BooleanField(default=False, help_text=_("Open banner's destination in new window/tab. It is relevant only to image banners (PNG, GIF, JPG)."))
+    destination_url = models.CharField(max_length=255, null=True, blank=True, verbose_name=_('Destination URL'), help_text=_('Clicking banner will get user to this URL.'))
+    popup = models.BooleanField(default=False, help_text=_("Open banner's destination in new window/tab."))
     display_order = models.IntegerField(default=0)
     order_field = 'display_order'
     ordering = ('display_order', 'id',)
