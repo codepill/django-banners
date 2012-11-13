@@ -12,7 +12,8 @@ class BannersForSlotNode(Node):
 
     def render(self, context):
         try:
-            slot = Slot.objects.get(symbol=self.symbol, language=context['LANGUAGE_CODE'])
+            language = self.options.get('language') or context['LANGUAGE_CODE']
+            slot = Slot.objects.get(symbol=self.symbol, language=language)
             banners = slot.published_banners
             limit = self.options.get('limit') or slot.limit
             banners = banners[:limit]
@@ -33,8 +34,9 @@ def banners_for_section(parser, token):
     correct_tag_syntax = re.search(r'^(.*?) as (\w+)(.*)$', arg)
     if not correct_tag_syntax:
         raise TemplateSyntaxError, "The %(tag_name)r tag syntax is incorrect. " \
-                                   "Correct syntax is '%(tag_name)s slot as variable' " \
-                                   "where 'variable' can be any name." % {'tag_name': tag_name}
+                                   "Correct syntax is '%(tag_name)s slot as variable options' " \
+                                   "where 'variable' can be any name and 'options' are optional." \
+                                   "'Options' format is name=value." % {'tag_name': tag_name}
     else:
         symbol, cast_as, opts = correct_tag_syntax.groups()
         opts_dict = {}
