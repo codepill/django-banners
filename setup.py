@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 install_requires = [
-    'hexagonit.swfheader==1.2',
+    'PIL>=1.1.7',
 ]
 setup(
     name='django-banners',
