@@ -1,0 +1,12 @@
+Settings
+========
+
+These are required in your Django settings. Please add and manipulate with the following:
+
+```Python
+_ = lambda s: s  # This is to let Django know to make translations
+LANGUAGES = [
+    ('en', _('English')),
+    ('fr', _('French')),
+]
+```
