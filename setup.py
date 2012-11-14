@@ -1,3 +1,4 @@
+import banners
 from setuptools import setup, find_packages
 
 install_requires = [
@@ -5,7 +6,7 @@ install_requires = [
 ]
 setup(
     name='django-banners',
-    version='0.9.1',
+    version=banners.__version__,
     description="Banner management app for Django (might be some CodePill's project dependent)",
     author='Marcin Nowak, Piotr Adamowicz',
     author_email='marcin.nowak@codepill.com, piotr.adamowicz@codepill.com',
