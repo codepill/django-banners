@@ -42,7 +42,7 @@ class BannerManager(models.Manager):
 class Banner(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True, help_text=_('This will be used as alt for images.'))
     slot = models.ForeignKey(Slot)
-    banner_file = models.ImageField(
+    image = models.ImageField(
         upload_to='uploads/banners/%y/%j/%H/%M%S/',
         help_text=_('This can be any image such as PNG, JPG, GIF.')
     )
